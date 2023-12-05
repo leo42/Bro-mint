@@ -117,9 +117,7 @@ const Mint = (props) => {
         setTokens(newTokens);
     }
 
-    const mint = async () => {
-      setWalletPickerOpen(true);
-    }
+ 
 
     function stringToHex(str) {
       let hexString = '';
@@ -130,17 +128,16 @@ const Mint = (props) => {
       return hexString;
   }
 
-    const mintFrom = async (wallet) => {
+  const mint = async () => {
       try{
-        const api = await window.cardano[wallet].enable();
-        const network = await api.getNetworkId( )
-        console.log(network) 
+        const api = await window.cardano[props.wallet].enable([130]);
+        const network = 0
         const url = "https://passthrough.broclan.io"
         const networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
         // 
         const lucid = await Lucid.new( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
-
-
+        let script = await api.getScript();
+        let scriptRequirements = await api.getScriptRequirements();
         lucid.selectWallet(api);
       
         const address = await lucid.wallet.address()
@@ -149,32 +146,52 @@ const Mint = (props) => {
         const timeNow = new Date()
         const slot = lucid.utils.unixTimeToSlot(timeNow.getTime()) 
     
-        const nativeScript = lucid.utils.nativeScriptFromJson(JSON.parse(policyJson))
 
-        const policyId = await lucid.utils.mintingPolicyToId(nativeScript)
+        const policyId = await lucid.utils.mintingPolicyToId({ "type": "Native" , "script":script})
+        console.log(policyId)
         const assets =  {}
         tokens.forEach((token) => {
             assets[policyId+ stringToHex(token.token)] = BigInt(token.amount)
         })
         console.log(policyId)
         
-        const parsedMetaData = JSON.parse(metaData)
         const metadata = {}
-        metadata[policyId] = parsedMetaData
-        const tx = await lucid.newTx()
-              .mintAssets(assets)
-              .attachMintingPolicy(nativeScript)
-              .attachMetadata( 721, metadata)
-              .addSignerKey(keyHash)
-              .validTo( lucid.utils.slotToUnixTime(slot+99) )
-              .complete();
+        metadata[policyId] = {}
+
+        tokens.forEach((token) => {
+            metadata[policyId][stringToHex(token.token)] = {}
+            token.metaData.forEach((metaData) => {
+                metadata[policyId][stringToHex(token.token)][stringToHex(metaData.name)] = stringToHex(metaData.value)
+            })
+            sharedMetadata.forEach((metaData) => {
+                metadata[policyId][stringToHex(token.token)][stringToHex(metaData.name)] = stringToHex(metaData.value)
+            })
+        })
 
         lucid.selectWallet(api);
+        console.log(sharedMetadata)
 
-          const signature = await tx.sign().complete();
-          
-          const txHash = await signature.submit();
-          
+        const tx = await lucid.newTx()
+              .mintAssets(assets)
+              .attachMintingPolicy({ "type": "Native" , "script":script})
+              .attachSpendingValidator({ "type": "Native" , "script":script})
+              .attachMetadata( 721, metadata)
+              .validTo( lucid.utils.slotToUnixTime(slot+99) )
+             
+        scriptRequirements.map((requirement) => {
+                if(requirement.code === 1){
+                    tx.addSignerKey(requirement.value)
+                }
+                if(requirement.code === 2){
+                    tx.validTo( lucid.utils.slotToUnixTime((requirement.value)))
+                }
+                if(requirement.code === 3){
+                    tx.validFrom(lucid.utils.slotToUnixTime((requirement.value)))
+                }
+        });
+            
+        const txComplete = await tx.complete();
+        const txHash =  api.submitUnsignedTx(txComplete.toString());
           console.log(txHash);
           setErrorMessage("mint sucsessfull policy '"+policyId+"'" + " at policy Json " + policyJson)
           
@@ -206,8 +223,8 @@ const Mint = (props) => {
         ) }
         </div>
 
-    const sharedMetadataJSX = <div>
-
+    const sharedMetadataJSX = <div className="sharedMetadataContainer">
+      <h3>Project Defult metadata:</h3>
       {sharedMetadata.map((metaData, index) => 
        <div className="sharedMetadata" key={index}>
        <input className="sharedMetadataName" type="text" onChange={(e) => setSharedMetaDataName(e.target.value, index)} id="token" placeholder="name" value={metaData.name} />
@@ -219,18 +236,15 @@ const Mint = (props) => {
 
 
   return (
-    <div>
+    <div className="mintPage">
           {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={mintFrom} />}
-
-        <br/>
+        <h2>Items to mint:</h2>
+        
         {tokensJSX}
-        <br/>
         <button onClick={() => {addToken()}}>Add Token</button>
-        <br/>
         
       {props.address && sharedMetadataJSX}
-     <button onClick={mint}>Mint</button>
-      <br/> 
+     <button className="mintButton" onClick={mint}>Mint</button>
       {errorMessage && <p className="errorMessage">{errorMessage}</p>}
      </div>
   );
