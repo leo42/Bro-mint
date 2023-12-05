@@ -1,0 +1,20 @@
+.Address{
+    width: 750px;
+}
+
+.Datum{
+    width: 450px;
+    height: 200px;
+/* allow multiline text input */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-y: auto;
+
+}
+
+.errorMessage{
+    color: red;
+    font-size: 12px;
+    font-weight: bold;
+    margin-top: 15px;
+}

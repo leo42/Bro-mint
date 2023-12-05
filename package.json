@@ -1,0 +1,30 @@
+{
+  "name": "bro mint",
+  "version": "1.0.0",
+  "description": "A minting centre for Cardano native tokens that utilizes the connected multisig wallet",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack  serve --mode=development "
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.21.5",
+    "@babel/preset-react": "^7.18.6",
+    "babel-loader": "^9.1.2",
+    "css-loader": "^6.7.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "style-loader": "^3.3.2",
+    "webpack": "^5.82.0",
+    "webpack-cli": "^5.0.2",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "dependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "lucid-cardano": "0.9.2",
+    "react-toastify": "^9.1.2"
+  }
+}
