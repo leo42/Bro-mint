@@ -1,0 +1,15 @@
+.tokenListing{
+    margin: 30px;
+}
+
+.tokenMetadata{
+    margin: 3px;
+}
+
+.tokenMetadataName{
+}
+
+.tokenMetadataValue{
+    margin-left: 10px;
+    width: 60%;
+}

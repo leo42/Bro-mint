@@ -1,20 +1,43 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react"
 import { Lucid , Blockfrost , Data ,Constr } from 'lucid-cardano';
 import "./sendWithDatum.css"
 import WalletPicker from "./WalletPicker"
+import "./Mint.css"
 
-const Mint = () => {
-    const [metaData, setMetaData] = useState("");
+const Mint = (props) => {
+    const [sharedMetadata, setSharedMetadata] = useState([]);
     const [tokens, setTokens] = useState([]);
     const [walletPickerOpen, setWalletPickerOpen] = useState(false);
     const [errorMessage , setErrorMessage] = useState("");
 
+    useEffect(() => {
+        //load shared metadata from local storage
+        const sharedMetadataString = localStorage.getItem(props.address+"sharedMetadata");
+        if(sharedMetadataString){
+            const sharedMetadata = JSON.parse(sharedMetadataString);
+            setSharedMetadata(sharedMetadata);
+        }
+
+      },[props.address])
+
+    const storeSharedMetadata = async () => {
+        //store shared metadata to local storage
+        const sharedMetadataString = JSON.stringify(sharedMetadata);
+        localStorage.setItem(props.address+"sharedMetadata", sharedMetadataString);
+    }
+
+    //store shared metadata to local storage on change 
+    useEffect(() => {
+        storeSharedMetadata();
+    },[sharedMetadata])
+
     const addToken = () => {
         const token = ""
         const amount = 1
+        const metaData = []
         console.log("add token")
-        const newTokens= [...tokens,{token, amount}];
+        const newTokens= [...tokens,{token, amount, metaData}];
         setTokens(newTokens); 
       
     }
@@ -24,6 +47,60 @@ const Mint = () => {
         const newTokens =  tokens.filter((token, i) => i !== index )
        
         setTokens(newTokens);
+    }
+
+    const addMetadaField = (index) => {
+        console.log("add metadata field")
+        const newTokens = [...tokens];
+        newTokens[index].metaData.push({name:"", value:""});
+        setTokens(newTokens);
+    }
+    const setMetaDataName = (name, index, index2) => {
+        console.log("set metadata name")
+        const newTokens = [...tokens];
+        newTokens[index].metaData[index2].name = name;
+        setTokens(newTokens);
+    }
+
+    const setMetaDataValue = (value, index, index2) => {
+        console.log("set metadata value")
+        const newTokens = [...tokens];
+        newTokens[index].metaData[index2].value = value;
+        setTokens(newTokens);
+    } 
+
+    const removeMetadaField = (index, index2) => {
+        console.log("remove metadata field")
+        const newTokens = [...tokens];
+        newTokens[index].metaData = newTokens[index].metaData.filter((metaData, i) => i !== index2 )
+        setTokens(newTokens);
+    }
+
+    const removeSharedMetadaField = (index) => {
+        console.log("remove shared metadata field")
+        const newSharedMetadata = [...sharedMetadata].filter((metaData, i) => i !== index );
+        setSharedMetadata(newSharedMetadata);
+    }
+
+    const setSharedMetaDataName = (name, index) => {
+        console.log("set shared metadata name")
+        const newSharedMetadata = [...sharedMetadata];
+        newSharedMetadata[index].name = name;
+        setSharedMetadata(newSharedMetadata);
+    }
+
+    const setSharedMetaDataValue = (value, index) => {
+        console.log("set shared metadata value")
+        const newSharedMetadata = [...sharedMetadata];
+        newSharedMetadata[index].value = value;
+        setSharedMetadata(newSharedMetadata);
+    }
+
+    const addSharedMetadaField = (index) => {
+        console.log("add shared metadata field")
+        const newSharedMetadata = [...sharedMetadata];
+        newSharedMetadata.push({name:"", value:""});
+        setSharedMetadata(newSharedMetadata);
     }
 
     const setTokenName = (token, index) => {
@@ -71,20 +148,7 @@ const Mint = () => {
         
         const timeNow = new Date()
         const slot = lucid.utils.unixTimeToSlot(timeNow.getTime()) 
-        const policyJson = `{
-          "type": "all",
-          "scripts": [
-            {
-              "type": "sig",
-              "keyHash": "${keyHash}"
-            },
-            {
-              "type": "before",
-              "slot": ${slot+100}
-            }
-          ]
-        }`
-        console.log(policyJson)
+    
         const nativeScript = lucid.utils.nativeScriptFromJson(JSON.parse(policyJson))
 
         const policyId = await lucid.utils.mintingPolicyToId(nativeScript)
@@ -121,25 +185,50 @@ const Mint = () => {
           
 
     }
+
+    const tokensJSX =  <div key={tokens.length}>
+        {tokens.map((token, index) => 
+            <div className="tokenListing" key={index}>
+                <input type="text" onChange={(e) => setTokenName(e.target.value ,index)} id="token" placeholder="Token" value={token.name} className="Address"/>
+                <input type="number" onChange={(e) => setTokenAmount(e.target.value , index)}  placeholder="Amount" />  
+                <button onClick={() => {addMetadaField(index)}}>Add metadata field</button>
+                <button onClick={() => {}}>Add Image</button>
+                <button onClick={() => {removeToken(index)}}>x</button>
+
+                {tokens[index].metaData.map((metaData, index2) =>
+                    <div className="tokenMetadata" key={index2}>
+                        <input className="tokenMetadataName" type="text" onChange={(e) => setMetaDataName(e.target.value ,index, index2)} id="token" placeholder="name" value={metaData.name} />
+                        <input type="text" className="tokenMetadataValue" onChange={(e) => setMetaDataValue(e.target.value ,index, index2)} id="token" placeholder="value" value={metaData.value} />
+                        <button onClick={() => {removeMetadaField(index, index2)}}>x</button>
+                    </div>
+                )}
+            </div>
+        ) }
+        </div>
+
+    const sharedMetadataJSX = <div>
+
+      {sharedMetadata.map((metaData, index) => 
+       <div className="sharedMetadata" key={index}>
+       <input className="sharedMetadataName" type="text" onChange={(e) => setSharedMetaDataName(e.target.value, index)} id="token" placeholder="name" value={metaData.name} />
+       <input type="text" className="sharedMetadataValue" onChange={(e) => setSharedMetaDataValue(e.target.value ,index)} id="token" placeholder="value" value={metaData.value} />
+       <button onClick={() => {removeSharedMetadaField(index)}}>x</button>
+   </div>)} 
+    <button onClick={() => {addSharedMetadaField()}}>Add shared metadata field</button>
+    </div>
+
+
   return (
     <div>
           {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={mintFrom} />}
 
         <br/>
-        <div key={tokens.length}>
-        {tokens.map((token, index) => 
-            <div key={tokens.length}>
-                <input type="text" onChange={(e) => setTokenName(e.target.value ,index)} id="token" placeholder="Token" value={token.name} className="Address"/>
-                <input type="number" onChange={(e) => setTokenAmount(e.target.value , index)}  placeholder="Amount" />  
-                <button onClick={() => {removeToken(index)}}>Remove Token</button>
-            </div>
-        ) }
-        </div>
+        {tokensJSX}
         <br/>
         <button onClick={() => {addToken()}}>Add Token</button>
         <br/>
-        <textarea type="text" placeholder="metadata" className="mintAmount Datum" value={metaData} onChange={(e) => setMetaData(e.target.value) } />
-        <br/>
+        
+      {props.address && sharedMetadataJSX}
      <button onClick={mint}>Mint</button>
       <br/> 
       {errorMessage && <p className="errorMessage">{errorMessage}</p>}

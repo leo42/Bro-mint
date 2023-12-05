@@ -8,9 +8,10 @@ function ConnectWallet(props) {
     const [walletPickerOpen, setWalletPickerOpen] = useState(false);
     const [errorMessage , setErrorMessage] = useState("");
     function connect(wallet) {
-        if(window.cardano[wallet].supportedExtensions.includes(MULTISIGCIP)){
+        if(window.cardano[wallet].supportedExtensions && window.cardano[wallet].supportedExtensions.includes(MULTISIGCIP)){
             
             props.setWallet(wallet)
+            setErrorMessage("")
         }else{
             console.log("not supported")
             setErrorMessage(wallet+" wallet not supported")

@@ -32,9 +32,11 @@ const App = () => {
      try {
       const api = await window.cardano[wallet].enable([130]);
       const lucid = new Lucid();
+      setLucid(lucid);
       lucid.selectWallet(api);
+      const address = await lucid.wallet.address()
+      setAddress(address);
       console.log('Wallet connected');
-      console.log(await lucid.wallet.address());
       
      } catch (e) {
         console.log(e);
@@ -51,7 +53,7 @@ const App = () => {
   return (
     <div>
       <ConnectWallet wallet={wallet} setWallet={setWallet}/>
-      <Mint />
+      <Mint wallet={wallet} lucid={lucid} address={address}/>
     </div>
   );
 };
