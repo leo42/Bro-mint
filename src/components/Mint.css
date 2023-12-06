@@ -13,7 +13,42 @@
     justify-content: center;
     margin: 20px;
 }
+.tokenImage img{
+    width: 200px;
+    height: 200px;
+    margin: 10px;
+}
+.tokenImage{
+    cursor: pointer;
+    position: relative;
+    display: inline-block; 
+}
+.tokenImage button{
+    margin: 10px;
+    /* possition over image tor right corner*/
+    position: absolute;
+    top: 0px;
+    right: 0;
+    cursor: pointer;
+    /* make button transparent */ 
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid rgb(196, 196, 196);
+    background-color: white;
+}
 
+.selectedImage{
+    border: 7px solid orange;
+}
+
+.imagesList{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    overflow: wrap;
+    justify-content: center;
+    margin: 10px;
+}
 .tokenListing{
     margin: 10px;
     padding: 10px;

@@ -7,7 +7,7 @@ import "./Mint.css"
 import MyDropzone from "./Dropzone.jsx"
 const Mint = (props) => {
     const [sharedMetadata, setSharedMetadata] = useState([]);
-    const [tokens, setTokens] = useState([]);
+    const [tokens, setTokens] = useState([{token: "", amount: 1, metaData: [], defaultImage: null}]);
     const [walletPickerOpen, setWalletPickerOpen] = useState(false);
     const [errorMessage , setErrorMessage] = useState("");
 
@@ -163,13 +163,32 @@ const Mint = (props) => {
         metadata[policyId] = {}
 
         tokens.forEach((token) => {
-            metadata[policyId][token.token] = {}
-            token.metaData.forEach((metaData) => {
-                metadata[policyId][token.token][metaData.name] = metaData.value
-            })
-            sharedMetadata.forEach((metaData) => {
-                metadata[policyId][token.token][metaData.name] = metaData.value
-            })
+            if (!token.amount < 0) {
+                metadata[policyId][token.token] = {}
+                metadata[policyId][token.token]["name"] = token.token
+                if(token.images){
+                    metadata[policyId][token.token]["files"] = []
+
+                    token.images.forEach((image, index) => {
+                        const newfile = {}
+
+                        newfile["src"] =  "ipfs://" +  image.ipfsCID
+                        newfile["name"] = image.name
+                        newfile["mediaType"] = image.imageType
+                        metadata[policyId][token.token]["files"].push(newfile)
+                        if(index === token.defaultImage){
+                            metadata[policyId][token.token]["image"] = "ipfs://" + image.ipfsCID
+                            metadata[policyId][token.token]["mediaType"] = image.imageType
+                        }
+                    })
+                }
+                token.metaData.forEach((metaData) => {
+                    metadata[policyId][token.token][metaData.name] = metaData.value
+                })
+                sharedMetadata.forEach((metaData) => {
+                    metadata[policyId][token.token][metaData.name] = metaData.value
+                })
+            }
         })
 
         lucid.selectWallet(api);
@@ -206,17 +225,24 @@ const Mint = (props) => {
 
     }
 
-    const addImage = async (index) => {
+    const addImage = async (name ,image ,ipfsCID, imageType , index) => {
         const newTokens = [...tokens];
         if(!newTokens[index].images){
             newTokens[index].images = [];
          }
-         //get image from user and upload image to ipfs
+        newTokens[index].images.push({name,image,ipfsCID, imageType});
+        setTokens(newTokens);
+    }
 
+    const removeImage = (index, index2) => {    
+        const newTokens = [...tokens];
+        newTokens[index].images = newTokens[index].images.filter((image, i) => i !== index2 )
+        setTokens(newTokens);
+    }
 
-         
-        const image = await window.cardano[props.wallet].pickFile();
-        newTokens[index].images.push({default:false, value:image});
+    const makeImageDefault = (index, index2) => {
+        const newTokens = [...tokens];
+        newTokens[index].defaultImage = index2;
         setTokens(newTokens);
     }
 
@@ -226,9 +252,18 @@ const Mint = (props) => {
                 <input type="text" onChange={(e) => setTokenName(e.target.value ,index)} id="token" placeholder="Token" value={token.name} className="Address"/>
                 <input type="number" onChange={(e) => setTokenAmount(e.target.value , index)}  placeholder="Amount" />  
                 <button onClick={() => {addMetadaField(index)}}>Add metadata field</button>
-                <button onClick={() => {addImage(index)}}>Add Image</button>
                 <button onClick={() => {removeToken(index)}}>x</button>
-                <MyDropzone />
+                <MyDropzone loadImage={addImage} index={index}/>
+                <div className="imagesList">
+                {tokens[index].images && tokens[index].images.map((image, index3) =>
+                    
+                    <div className="tokenImage" key={index3}>
+                        
+                        <img className={index3===token.defaultImage ? "selectedImage" : ""} onClick={()=>makeImageDefault(index,index3)} src={image.image}></img>
+                        <button  onClick={() => {removeImage(index, index3)}}>x</button>
+                    </div>
+                )}
+                </div>
                 {tokens[index].metaData.map((metaData, index2) =>
                     <div className="tokenMetadata" key={index2}>
                         <input className="tokenMetadataName" type="text" onChange={(e) => setMetaDataName(e.target.value ,index, index2)} id="token" placeholder="name" value={metaData.name} />

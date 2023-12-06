@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { create } from 'ipfs-http-client';
 
 const ipfs = create({ host: '127.0.0.1', port: 5001, protocol: 'http' });
-function MyDropzone() {
+function MyDropzone(props) {
     const onDrop = useCallback(async (acceptedFiles) => {
         try {
             const file = acceptedFiles[0];
@@ -12,6 +12,11 @@ function MyDropzone() {
                 path: file.path,
                 content: file,
             });
+            //get loadImage(name ,image ,ipfsCID , index)
+
+            const url = URL.createObjectURL(file);
+
+            props.loadImage(file.path, url, added.cid.toString(), file.type, props.index);
             console.log('File added to IPFS with hash', added.cid.toString());
         } catch (error) {
             console.error('Error uploading file: ', error);
@@ -19,6 +24,7 @@ function MyDropzone() {
     }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+
 
     return (
         <div {...getRootProps()}>
@@ -28,6 +34,7 @@ function MyDropzone() {
             ) : (
                 <p>Drag 'n' drop some files here, or click to select files</p>
             )}
+        
         </div>
     );
 }
