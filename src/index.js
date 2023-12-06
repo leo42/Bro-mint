@@ -26,6 +26,7 @@ const App = () => {
   const [wallet, setWallet] = useState(null);
   const [address, setAddress] = useState(null);
   const [lucid, setLucid] = useState(null);
+
   useEffect(() => {
     async function connectWallet() {
     if (wallet) {
@@ -37,7 +38,8 @@ const App = () => {
       const address = await lucid.wallet.address()
       setAddress(address);
       console.log('Wallet connected');
-      
+      localStorage.setItem("wallet", JSON.stringify( wallet));
+
      } catch (e) {
         console.log(e);
       }
@@ -49,6 +51,15 @@ const App = () => {
   }
     connectWallet();
   }, [wallet]);
+
+  useEffect(() => {
+    const wallet = JSON.parse(localStorage.getItem("wallet"));
+    console.log(wallet);
+    if(wallet){
+        setWallet(wallet);
+    }
+  },[])
+
 
   return (
     <div>

@@ -4,7 +4,7 @@ import { Lucid , Blockfrost , Data ,Constr } from 'lucid-cardano';
 import "./sendWithDatum.css"
 import WalletPicker from "./WalletPicker"
 import "./Mint.css"
-
+import MyDropzone from "./Dropzone.jsx"
 const Mint = (props) => {
     const [sharedMetadata, setSharedMetadata] = useState([]);
     const [tokens, setTokens] = useState([]);
@@ -31,6 +31,10 @@ const Mint = (props) => {
     useEffect(() => {
         storeSharedMetadata();
     },[sharedMetadata])
+
+    //load wallet from local storage on load
+
+ 
 
     const addToken = () => {
         const token = ""
@@ -159,12 +163,12 @@ const Mint = (props) => {
         metadata[policyId] = {}
 
         tokens.forEach((token) => {
-            metadata[policyId][stringToHex(token.token)] = {}
+            metadata[policyId][token.token] = {}
             token.metaData.forEach((metaData) => {
-                metadata[policyId][stringToHex(token.token)][stringToHex(metaData.name)] = stringToHex(metaData.value)
+                metadata[policyId][token.token][metaData.name] = metaData.value
             })
             sharedMetadata.forEach((metaData) => {
-                metadata[policyId][stringToHex(token.token)][stringToHex(metaData.name)] = stringToHex(metaData.value)
+                metadata[policyId][token.token][metaData.name] = metaData.value
             })
         })
 
@@ -202,15 +206,29 @@ const Mint = (props) => {
 
     }
 
+    const addImage = async (index) => {
+        const newTokens = [...tokens];
+        if(!newTokens[index].images){
+            newTokens[index].images = [];
+         }
+         //get image from user and upload image to ipfs
+
+
+         
+        const image = await window.cardano[props.wallet].pickFile();
+        newTokens[index].images.push({default:false, value:image});
+        setTokens(newTokens);
+    }
+
     const tokensJSX =  <div key={tokens.length}>
         {tokens.map((token, index) => 
             <div className="tokenListing" key={index}>
                 <input type="text" onChange={(e) => setTokenName(e.target.value ,index)} id="token" placeholder="Token" value={token.name} className="Address"/>
                 <input type="number" onChange={(e) => setTokenAmount(e.target.value , index)}  placeholder="Amount" />  
                 <button onClick={() => {addMetadaField(index)}}>Add metadata field</button>
-                <button onClick={() => {}}>Add Image</button>
+                <button onClick={() => {addImage(index)}}>Add Image</button>
                 <button onClick={() => {removeToken(index)}}>x</button>
-
+                <MyDropzone />
                 {tokens[index].metaData.map((metaData, index2) =>
                     <div className="tokenMetadata" key={index2}>
                         <input className="tokenMetadataName" type="text" onChange={(e) => setMetaDataName(e.target.value ,index, index2)} id="token" placeholder="name" value={metaData.name} />

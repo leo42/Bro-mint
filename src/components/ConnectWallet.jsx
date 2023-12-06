@@ -23,8 +23,8 @@ function ConnectWallet(props) {
     return (
         <div className="WalletConnect">
            {props.wallet ? 
-                    <div> Connected to {props.wallet}  
-                    <button onClick={() => props.setWallet(null)}>Disconnect Wallet</button>  </div>:          
+                    <div> 
+                    <img className="connectedWallet" onClick={() => props.setWallet(null)} src={window.cardano[props.wallet].icon }></img>  </div>:          
                     <button onClick={() => setWalletPickerOpen(true)}>Connect Wallet</button> }
              {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={connect} />}
             {errorMessage && <div className="errorMessage"> {errorMessage}</div> }
