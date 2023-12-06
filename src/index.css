@@ -9,7 +9,7 @@
     --clrInputs: rgb(105 105 105);
     --clrNavText: white;
     --clrSelect: gray;
-    --clrPlaceholder: rgb(230, 230, 230);
+    --clrPlaceholder: rgb(180, 180, 180);
     --clrWalletCreate1: rgb(240 240 240 / 16%);
     --clrWalletCreate2: rgb(255 255 255 / 16%);
     --shadowclr: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -67,7 +67,7 @@ button{
     }
 }
 
-input{
+input {
     background-color: var(--clrInputs);
     color: var(--clrNavText);
     border: none;
@@ -75,9 +75,14 @@ input{
     padding: 5px;
     margin: 5px;
     transition: all 0.3s ease-in-out;
-    &:focus{
-        outline: none;
-        background-color: var(--clrNavText);
-        color: var(--clrNav);
-    }
+}
+
+input:focus {
+    outline: none;
+    background-color: var(--clrNavText);
+    color: var(--clrNav);
+}
+
+input::placeholder {
+    color: var(--clrPlaceholder);
 }
