@@ -1,0 +1,23 @@
+.dropZone{
+    width: 100%;
+    height: 80px;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    &:hover{
+        border: 2px dashed #aaa;
+    }
+    .dropZone__icon{
+        font-size: 2rem;
+        color: #ccc;
+    }
+    .dropZone__text{
+        font-size: 1rem;
+        color: #ccc;
+    }
+}

@@ -4,6 +4,7 @@ import Mint from './components/Mint.jsx';
 import ConnectWallet from './components/ConnectWallet.jsx';
 import {useState, useEffect} from 'react';
 import { Lucid } from "lucid-cardano";
+import './index.css';
 
 const Separator = (
   <h5 
@@ -62,7 +63,7 @@ const App = () => {
 
 
   return (
-    <div>
+    <div className='app darkMode'>
       <ConnectWallet wallet={wallet} setWallet={setWallet}/>
       <Mint wallet={wallet} lucid={lucid} address={address}/>
     </div>

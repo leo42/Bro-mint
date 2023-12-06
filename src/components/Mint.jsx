@@ -163,7 +163,7 @@ const Mint = (props) => {
         metadata[policyId] = {}
 
         tokens.forEach((token) => {
-            if (!token.amount < 0) {
+            if (token.amount > 0) {
                 metadata[policyId][token.token] = {}
                 metadata[policyId][token.token]["name"] = token.token
                 if(token.images){

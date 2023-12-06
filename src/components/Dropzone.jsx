@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 import { create } from 'ipfs-http-client';
-
+import './Dropzone.css';
 const ipfs = create({ host: '127.0.0.1', port: 5001, protocol: 'http' });
 function MyDropzone(props) {
     const onDrop = useCallback(async (acceptedFiles) => {
@@ -27,7 +27,7 @@ function MyDropzone(props) {
 
 
     return (
-        <div {...getRootProps()}>
+        <div className='dropZone' {...getRootProps()}>
             <input {...getInputProps()} />
             {isDragActive ? (
                 <p>Drop the files here ...</p>

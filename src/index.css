@@ -1,0 +1,83 @@
+
+.darkMode {
+    --clrorange: rgba(255, 153, 0, 1);
+    --clrgreen: rgba(22, 217, 0, 1);
+    --clrred: #ff0000;
+    --clrNav: rgb(39 39 39);
+    --clrBackground: rgb(39 39 39);
+    --clrModal: rgb(53, 53, 53);
+    --clrInputs: rgb(105 105 105);
+    --clrNavText: white;
+    --clrSelect: gray;
+    --clrPlaceholder: rgb(230, 230, 230);
+    --clrWalletCreate1: rgb(240 240 240 / 16%);
+    --clrWalletCreate2: rgb(255 255 255 / 16%);
+    --shadowclr: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    --angle: 0deg;
+    --opacity: 0.5;
+  }
+  
+  .lightMode{
+    --clrorange: rgba(255, 153, 0, 1);
+    --clrgreen: rgba(22, 217, 0, 1);
+    --clrred: #ff0000;
+    --clrNav: rgb(255, 255, 255); 
+    --clrBackground: rgb(255, 255, 255);
+    --clrModal: rgb(255, 255, 255);
+    --clrInputs: rgb(255, 255, 255);
+    --clrNavText: black;
+    --clrSelect: white;
+    --clrPlaceholder: rgba(0, 0, 0, 0.322);
+    --clrWalletCreate1 : rgb(236, 236, 236);
+    --clrWalletCreate2 : rgb(255, 242, 222);
+    --shadowclr:rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    --angle: 0deg;
+    --opacity: 0.5;
+  }
+
+
+  body{
+    background-color: var(--clrBackground);
+    color: var(--clrNavText);
+  }
+
+.app{
+    height: 100vh;
+    width: 100vw;
+    position: absolute;
+    overflow-y: scroll;
+    top: 0;
+    left: 0;
+    background-color: var(--clrBackground);
+    color: var(--clrNavText);
+  }
+
+button{
+    background-color: var(--clrInputs);
+    color: var(--clrNavText);
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    &:hover{
+        background-color: var(--clrNavText);
+        color: var(--clrNav);
+    }
+}
+
+input{
+    background-color: var(--clrInputs);
+    color: var(--clrNavText);
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    transition: all 0.3s ease-in-out;
+    &:focus{
+        outline: none;
+        background-color: var(--clrNavText);
+        color: var(--clrNav);
+    }
+}
