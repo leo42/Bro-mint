@@ -148,7 +148,7 @@ const Mint = (props) => {
     
 
         const policyId = await lucid.utils.mintingPolicyToId({ "type": "Native" , "script":script})
-        console.log(policyId)
+
         const assets =  {}
         tokens.forEach((token) => {
             assets[policyId+ stringToHex(token.token)] = BigInt(token.amount)
@@ -176,7 +176,6 @@ const Mint = (props) => {
               .attachMintingPolicy({ "type": "Native" , "script":script})
               .attachSpendingValidator({ "type": "Native" , "script":script})
               .attachMetadata( 721, metadata)
-              .validTo( lucid.utils.slotToUnixTime(slot+99) )
              
         scriptRequirements.map((requirement) => {
                 if(requirement.code === 1){
@@ -191,13 +190,13 @@ const Mint = (props) => {
         });
             
         const txComplete = await tx.complete();
-        const txHash =  api.submitUnsignedTx(txComplete.toString());
+        const txHash = await api.submitUnsignedTx(txComplete.toString());
           console.log(txHash);
           setErrorMessage("mint sucsessfull policy '"+policyId+"'" + " at policy Json " + policyJson)
           
               }catch(e){
                 console.log(e)
-                setErrorMessage(e.message)
+                setErrorMessage(e.toString())
               }
           
 
