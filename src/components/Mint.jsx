@@ -135,7 +135,9 @@ const Mint = (props) => {
   const mint = async () => {
       try{
         const api = await window.cardano[props.wallet].enable([130]);
-        const network = 0
+        const address = await lucid.wallet.address()
+        
+        const network = lucid.utils.getAddressDetails(address).networkId 
         const url = "https://passthrough.broclan.io"
         const networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
         // 
@@ -144,7 +146,6 @@ const Mint = (props) => {
         let scriptRequirements = await api.getScriptRequirements();
         lucid.selectWallet(api);
       
-        const address = await lucid.wallet.address()
         const keyHash = lucid.utils.getAddressDetails(address).paymentCredential.hash
         
         const timeNow = new Date()
