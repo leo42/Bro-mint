@@ -134,7 +134,7 @@ const Mint = (props) => {
 
   const mint = async () => {
       try{
-        const api = await window.cardano[props.wallet].enable([130]);
+        const api = await window.cardano[props.wallet].enable([106]);
         let network = 0
         let networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
         // 

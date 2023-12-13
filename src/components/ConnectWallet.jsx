@@ -3,7 +3,7 @@ import { useState } from "react"
 import "./ConnectWallet.css"
 import WalletPicker from "./WalletPicker"
 
-const MULTISIGCIP = 130;
+const MULTISIGCIP = 106;
 function ConnectWallet(props) {
     const [walletPickerOpen, setWalletPickerOpen] = useState(false);
     const [errorMessage , setErrorMessage] = useState("");

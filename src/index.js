@@ -32,7 +32,7 @@ const App = () => {
     async function connectWallet() {
     if (wallet) {
      try {
-      const api = await window.cardano[wallet].enable([130]);
+      const api = await window.cardano[wallet].enable([106]);
       const lucid = new Lucid();
       setLucid(lucid);
       lucid.selectWallet(api);
