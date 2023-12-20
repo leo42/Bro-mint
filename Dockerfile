@@ -9,7 +9,7 @@ RUN npm run build
 
 FROM nginx:latest
 
-COPY --from=builder /usr/src/app/Fe/build/public/ /usr/share/nginx/html
+COPY --from=builder /usr/src/app/public/ /usr/share/nginx/html
 
 # Expose port 80 so that it can be accessed from outside the container
 EXPOSE 80
