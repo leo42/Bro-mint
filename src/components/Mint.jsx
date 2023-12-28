@@ -294,7 +294,7 @@ const Mint = (props) => {
   return (
     <div className="mintPage">
           {walletPickerOpen && <WalletPicker setOpenModal={setWalletPickerOpen} operation={mintFrom} />}
-        <h2>Items to mint:</h2>
+        <h2>Items to mint - :</h2>
         
         {tokensJSX}
         <button onClick={() => {addToken()}}>Add Token</button>
