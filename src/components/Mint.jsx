@@ -133,6 +133,20 @@ const Mint = (props) => {
   }
 
   const mint = async () => {
+
+      function normalizeMetadataString(str){
+        if ( str.length > 64) {
+            // If the string is larger than 64 bytes, split it into an array of strings
+            const valueArray = [];
+            for (let i = 0; i < str.length; i += 64) {
+                valueArray.push(str.slice(i, i + 64));
+            }
+            return valueArray;
+            } else {
+            // If the string is not larger than 64 bytes, use it as is
+            return str;
+            }
+      }
       try{
         const api = await window.cardano[props.wallet].enable([106]);
         let network = 0
@@ -170,6 +184,7 @@ const Mint = (props) => {
             if (token.amount > 0) {
                 metadata[policyId][token.token] = {}
                 metadata[policyId][token.token]["name"] = token.token
+
                 if(token.images){
                     metadata[policyId][token.token]["files"] = []
 
@@ -187,10 +202,12 @@ const Mint = (props) => {
                     })
                 }
                 token.metaData.forEach((metaData) => {
-                    metadata[policyId][token.token][metaData.name] = metaData.value
+                    metadata[policyId][token.token][metaData.name] = normalizeMetadataString(metaData.value)
+                
+
                 })
                 sharedMetadata.forEach((metaData) => {
-                    metadata[policyId][token.token][metaData.name] = metaData.value
+                    metadata[policyId][token.token][metaData.name] = normalizeMetadataString(metaData.value)
                 })
             }
         })
@@ -215,7 +232,7 @@ const Mint = (props) => {
                     tx.validFrom(lucid.utils.slotToUnixTime((requirement.value)))
                 }
         });
-            
+        const policyJson = lucid.utils.script
         const txComplete = await tx.complete();
         const txHash = await api.submitUnsignedTx(txComplete.toString());
           console.log(txHash);
@@ -233,6 +250,9 @@ const Mint = (props) => {
         const newTokens = [...tokens];
         if(!newTokens[index].images){
             newTokens[index].images = [];
+         }
+         if(!newTokens[index].defaultImage){
+            newTokens[index].defaultImage = 0;
          }
         newTokens[index].images.push({name,image,ipfsCID, imageType});
         setTokens(newTokens);
