@@ -135,11 +135,11 @@ const Mint = (props) => {
   const mint = async () => {
 
       function normalizeMetadataString(str){
-        if ( str.length > 64) {
+        if ( str.length > 60) {
             // If the string is larger than 64 bytes, split it into an array of strings
             const valueArray = [];
-            for (let i = 0; i < str.length; i += 64) {
-                valueArray.push(str.slice(i, i + 64));
+            for (let i = 0; i < str.length; i += 60) {
+                valueArray.push(str.slice(i, i + 60));
             }
             return valueArray;
             } else {
@@ -213,7 +213,7 @@ const Mint = (props) => {
         })
 
         lucid.selectWallet(api);
-        console.log(sharedMetadata)
+        console.log(metadata)
 
         const tx = await lucid.newTx()
               .mintAssets(assets)
@@ -248,6 +248,7 @@ const Mint = (props) => {
 
     const addImage = async (name ,image ,ipfsCID, imageType , index) => {
         const newTokens = [...tokens];
+        imageType = imageType || "image/jpeg"
         if(!newTokens[index].images){
             newTokens[index].images = [];
          }
@@ -280,9 +281,7 @@ const Mint = (props) => {
                 <MyDropzone loadImage={addImage} index={index}/>
                 <div className="imagesList">
                 {tokens[index].images && tokens[index].images.map((image, index3) =>
-                    
                     <div className="tokenImage" key={index3}>
-                        
                         <img className={index3===token.defaultImage ? "selectedImage" : ""} onClick={()=>makeImageDefault(index,index3)} src={image.image}></img>
                         <button  onClick={() => {removeImage(index, index3)}}>x</button>
                     </div>
