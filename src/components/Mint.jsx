@@ -136,30 +136,30 @@ const Mint = (props) => {
 
       function normalizeMetadataString(str){
         if ( str.length > 60) {
-            // If the string is larger than 64 bytes, split it into an array of strings
             const valueArray = [];
             for (let i = 0; i < str.length; i += 60) {
                 valueArray.push(str.slice(i, i + 60));
             }
             return valueArray;
             } else {
-            // If the string is not larger than 64 bytes, use it as is
             return str;
             }
       }
       try{
+        console.log(props.wallet)
         const api = await window.cardano[props.wallet].enable([106]);
+        console.log(api)
         let network = 0
-        let networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
+        let networkName = network === 1 ?   "Mainnet"   :   "Preview"  
         // 
         let lucid = await Lucid.new( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
-        let script = await api.getScript();
-        let scriptRequirements = await api.getScriptRequirements();
+        let script = await api.cip106.getScript();
+        let scriptRequirements = await api.cip106.getScriptRequirements();
         lucid.selectWallet(api);
 
         const address = await lucid.wallet.address();
         network =  lucid.utils.getAddressDetails(address).networkId
-        networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
+        networkName = network === 1 ?   "Mainnet"   :   "Preview"  
 
         lucid = await Lucid.new( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
 
@@ -234,7 +234,7 @@ const Mint = (props) => {
         });
         const policyJson = lucid.utils.script
         const txComplete = await tx.complete();
-        const txHash = await api.submitUnsignedTx(txComplete.toString());
+        const txHash = await api.cip106.submitUnsignedTx(txComplete.toString());
           console.log(txHash);
           setErrorMessage("mint sucsessfull policy '"+policyId+"'" + " at policy Json " + policyJson)
           
