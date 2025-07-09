@@ -31,11 +31,11 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "cip106-lucidevolution": "^0.1.0",
+    "@lucid-evolution/lucid": "^0.4.29",
+    "cip106-lucidevolution": "^0.1.1",
     "cip141-lucidevolution": "^0.1.1",
     "copy-webpack-plugin": "^11.0.0",
     "ipfs-http-client": "^60.0.1",
-    "@lucid-evolution/lucid": "^0.4.29",
     "react-dropzone": "^14.2.3",
     "react-toastify": "^9.1.2"
   }

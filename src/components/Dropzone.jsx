@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 
 import { create } from 'ipfs-http-client';
 import './Dropzone.css';
-const ipfs = create({ host: '127.0.0.1', port: 5001, protocol: 'http' });
+const ipfs = create({ host: '127.0.0.1', port: 5000, protocol: 'http' });
 function MyDropzone(props) {
     const onDrop = useCallback(async (acceptedFiles) => {
         try {

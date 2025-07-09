@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useState } from "react"
-import { Lucid , Blockfrost , Data ,Constr, mintingPolicyToId } from '@lucid-evolution/lucid';
+import { Lucid , Blockfrost , Data ,Constr, mintingPolicyToId , slotToUnixTime, credentialToAddress} from '@lucid-evolution/lucid';
 import "./sendWithDatum.css"
 import WalletPicker from "./WalletPicker"
 import "./Mint.css"
@@ -150,7 +150,9 @@ const Mint = (props) => {
       }
       try{
         console.log(props.wallet, props.cip)
-        const api = await window.cardano[props.wallet].enable([141]);
+        const api = await window.cardano[props.wallet].enable([props.cip
+
+        ]);
         console.log(api)
         let network = await api.getNetworkId()
         console.log(network)
@@ -164,8 +166,10 @@ const Mint = (props) => {
         if(props.cip === 106){
             let script = await api.cip106.getScript();
             let scriptRequirements = await api.cip106.getScriptRequirements();
-            tx = await createCIP106Transaction(lucid, script, scriptRequirements);
+            console.log(scriptRequirements)
+            tx = await createCIP106Transaction(lucid, scriptRequirements, script);
             policyId = mintingPolicyToId({ "type": "Native" , "script":script})
+           
 
         }
         if(props.cip === 141){
@@ -177,7 +181,6 @@ const Mint = (props) => {
         }
         networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
 
-        lucid = await Lucid( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
 
 
 
@@ -222,14 +225,13 @@ const Mint = (props) => {
             }
         })
 
-        lucid.selectWallet.fromAPI(api);
         console.log(metadata)
 
         tx.mintAssets(assets, Data.void())
               .attachMetadata( 721, metadata)
               .collectFrom(await lucid.wallet().getUtxos(), Data.void())
 
-        const txComplete = await tx.complete({coinSelection: true});
+        const txComplete = await tx.complete();
         let txHash = null;
         if(props.cip === 106){
             txHash = await api.cip106.submitUnsignedTx(txComplete.toCBOR());

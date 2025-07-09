@@ -34,7 +34,7 @@ const App = () => {
       let api = null;
       if (wallet) {
         // Check if wallet API is available
-        if (!window.cardano || !window.cardano[wallet] || window.cardano[wallet].supportedExtensions == []) {
+        if (!window.cardano || !window.cardano[wallet] || (await window.cardano[wallet].supportedExtensions.length) == 0) {
           console.log("Wallet API not available yet, retrying in 1 second...");
           setTimeout(() => connectWallet(), 3000);
           return;
@@ -52,6 +52,9 @@ const App = () => {
           }
           else{
             console.log("not supported")
+            setWallet(null);
+            setAddress(null);
+            setCip(null);
             return;
           }
           const address = CML.Address.from_hex((await api.getUnusedAddresses()).at(0)).to_bech32()
