@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   entry: './src/index.js',
@@ -38,10 +39,26 @@ module.exports = {
             { from: 'src/static', to: '' },
         ],
     }),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
 
 ],
 
   mode: 'production',
+  resolve: {
+    fallback: {
+      "stream": require.resolve("stream-browserify"),
+      "crypto": require.resolve("crypto-browserify"),
+      "buffer": require.resolve("buffer"),
+      "util": require.resolve("util"),
+      "assert": require.resolve("assert"),
+      "fs": false,
+      "path": require.resolve("path-browserify"),
+      "os": require.resolve("os-browserify/browser"),
+      "vm": require.resolve("vm-browserify")
+    }
+  },
   experiments: {
       asyncWebAssembly: true,
       topLevelAwait: true,

@@ -1,10 +1,13 @@
 import React, { useEffect } from "react";
 import { useState } from "react"
-import { Lucid , Blockfrost , Data ,Constr } from 'lucid-cardano';
+import { Lucid , Blockfrost , Data ,Constr, mintingPolicyToId } from '@lucid-evolution/lucid';
 import "./sendWithDatum.css"
 import WalletPicker from "./WalletPicker"
 import "./Mint.css"
 import MyDropzone from "./Dropzone.jsx"
+import { createCIP106Transaction } from "cip106-lucidevolution";
+import { createCIP141Transaction } from "cip141-lucidevolution";
+
 const Mint = (props) => {
     const [sharedMetadata, setSharedMetadata] = useState([]);
     const [tokens, setTokens] = useState([{token: "", amount: 1, metaData: [], defaultImage: null}]);
@@ -146,30 +149,37 @@ const Mint = (props) => {
             }
       }
       try{
-        console.log(props.wallet)
-        const api = await window.cardano[props.wallet].enable([106]);
+        console.log(props.wallet, props.cip)
+        const api = await window.cardano[props.wallet].enable([141]);
         console.log(api)
-        let network = 0
-        let networkName = network === 1 ?   "Mainnet"   :   "Preview"  
+        let network = await api.getNetworkId()
+        console.log(network)
+        let networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
         // 
-        let lucid = await Lucid.new( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
-        let script = await api.cip106.getScript();
-        let scriptRequirements = await api.cip106.getScriptRequirements();
-        lucid.selectWallet(api);
+        let lucid = await Lucid( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
+        lucid.selectWallet.fromAPI(api);
+        let tx = null;
+        let policyId = null;
+        console.log(api)
+        if(props.cip === 106){
+            let script = await api.cip106.getScript();
+            let scriptRequirements = await api.cip106.getScriptRequirements();
+            tx = await createCIP106Transaction(lucid, script, scriptRequirements);
+            policyId = mintingPolicyToId({ "type": "Native" , "script":script})
 
-        const address = await lucid.wallet.address();
-        network =  lucid.utils.getAddressDetails(address).networkId
-        networkName = network === 1 ?   "Mainnet"   :   "Preview"  
+        }
+        if(props.cip === 141){
+            let script = await api.cip141.getScript();
+            console.log(script)
+            let scriptRequirements = await api.cip141.getScriptRequirements();
+            tx = await createCIP141Transaction(lucid, scriptRequirements);
+            policyId = mintingPolicyToId({ "type": "PlutusV"+script[0] , "script":script[1]})
+        }
+        networkName = network === 1 ?   "Mainnet"   :   "Preprod"  
 
-        lucid = await Lucid.new( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
+        lucid = await Lucid( new Blockfrost("https://passthrough.broclan.io", networkName.toLowerCase()), networkName  );
 
-        const keyHash = lucid.utils.getAddressDetails(address).paymentCredential.hash
-        
-        const timeNow = new Date()
-        const slot = lucid.utils.unixTimeToSlot(timeNow.getTime()) 
-    
 
-        const policyId = await lucid.utils.mintingPolicyToId({ "type": "Native" , "script":script})
 
         const assets =  {}
         tokens.forEach((token) => {
@@ -212,36 +222,28 @@ const Mint = (props) => {
             }
         })
 
-        lucid.selectWallet(api);
+        lucid.selectWallet.fromAPI(api);
         console.log(metadata)
 
-        const tx = await lucid.newTx()
-              .mintAssets(assets)
-              .attachMintingPolicy({ "type": "Native" , "script":script})
-              .attachSpendingValidator({ "type": "Native" , "script":script})
+        tx.mintAssets(assets, Data.void())
               .attachMetadata( 721, metadata)
-             
-        scriptRequirements.map((requirement) => {
-                if(requirement.code === 1){
-                    tx.addSignerKey(requirement.value)
-                }
-                if(requirement.code === 2){
-                    tx.validTo( lucid.utils.slotToUnixTime((requirement.value)))
-                }
-                if(requirement.code === 3){
-                    tx.validFrom(lucid.utils.slotToUnixTime((requirement.value)))
-                }
-        });
-        const policyJson = lucid.utils.script
-        const txComplete = await tx.complete();
-        const txHash = await api.cip106.submitUnsignedTx(txComplete.toString());
+              .collectFrom(await lucid.wallet().getUtxos(), Data.void())
+
+        const txComplete = await tx.complete({coinSelection: true});
+        let txHash = null;
+        if(props.cip === 106){
+            txHash = await api.cip106.submitUnsignedTx(txComplete.toCBOR());
+        }
+        if(props.cip === 141){
+            txHash = await api.cip141.submitUnsignedTx(txComplete.toCBOR());
+        }
           console.log(txHash);
-          setErrorMessage("mint sucsessfull policy '"+policyId+"'" + " at policy Json " + policyJson)
-          
-              }catch(e){
-                console.log(e)
-                setErrorMessage(e.toString())
-              }
+          setErrorMessage("mint sucsessfull policy '"+policyId+"'" + " at policy Json " + policyId)
+    
+        }catch(e){
+        console.log(e)
+        setErrorMessage(e.toString())
+        }
           
 
     }

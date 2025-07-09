@@ -4,14 +4,23 @@ import "./ConnectWallet.css"
 import WalletPicker from "./WalletPicker"
 
 const MULTISIGCIP = 106;
+const SMARTCIP = 141
 function ConnectWallet(props) {
     const [walletPickerOpen, setWalletPickerOpen] = useState(false);
     const [errorMessage , setErrorMessage] = useState("");
     function connect(wallet) {
-        if(window.cardano[wallet].supportedExtensions && window.cardano[wallet].supportedExtensions.includes(MULTISIGCIP)){
-            
-            props.setWallet(wallet)
-            setErrorMessage("")
+        if(window.cardano[wallet].supportedExtensions){
+            if(window.cardano[wallet].supportedExtensions.includes(MULTISIGCIP)){
+                props.setWallet(wallet)
+                setErrorMessage("")
+            }
+            else if(window.cardano[wallet].supportedExtensions.includes(SMARTCIP)){
+                props.setWallet(wallet)
+                setErrorMessage("")
+            }
+            else{
+                setErrorMessage(wallet+" wallet not supported")
+            }
         }else{
             console.log("not supported")
             setErrorMessage(wallet+" wallet not supported")
